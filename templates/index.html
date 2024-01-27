@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style/main_css_file_for_index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_css_file_for_index.css') }}">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+    <style>
+        body{
+            overflow: hidden;
+            padding: 10px;
+            color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<div class="gradient-container" id="gradient-container">
+</div>
+<a style="visibility: hidden;position: absolute" id="data"></a>
+
+    <ul class="menu">
+        <li><button onclick="pop_op_p()">Мои счета</button></li>
+        <li><button onclick="create_account()">Создать счет</button></li>
+        <li><button onclick="delete_acc()">Удалить счет</button></li>
+        <li><button onclick="fill_money()">Пополнение денег</button></li>
+        <li><button onclick="withdraw_money()">Снятие денег</button></li>
+        <li><button onclick="transfer_money()">Перевод денег</button></li>
+        <li><button onclick="de_func()">Выход из аккаунта</button></li>
+    </ul>
+
+<div id="del_acc_from_log" class="func_create">
+    <div align="center">
+        <form action="http://127.0.0.1:5000/logout" method="get">
+            <div>
+                <label>Вы точно хотите совершить выход?</label>
+            </div>
+            <div>
+                <button type="submit">Да</button>
+                <button class="exit" type="button" id="exit_m_m_l_m_m" onclick="document.getElementById('del_acc_from_log').style.transform = 'scale(0.5, 0.5)'; document.getElementById('del_acc_from_log').style.top = '-100%'; document.getElementById('del_acc_from_log').style.opacity = '0'; document.getElementById('del_acc_from_log').style.borderRadius = '50%'">Нет</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="create_acc" class="func_create">
+        <button class="exit_m" id="exit_m" onclick="no_come_go()">Выход</button>
+    <div align="center">
+
+    <form action="http://127.0.0.1:5000/create_account/{{ user_info.user_name }}" method="post">
+        <div>
+            <label for="name">номер нового счета:</label>
+            <input type="text" id="name" name="acc_num" maxlength="35">
+        </div>
+        <button type="submit">Создать</button>
+    </form>
+    </div>
+    </div>
+
+<div id="del_acc" class="func_create">
+        <button class="exit" id="exit_m_m" onclick="no_come_go_o()">Выход</button>
+    <div align="center">
+
+    <form action="http://127.0.0.1:5000/dolo/{{ user_info.user_name }}" method="post">
+        <div>
+            <label for="name">номер счета для удаление:</label>
+            <input type="text" id="del_acc_" name="acc_num" maxlength="35">
+        </div>
+        <button type="submit">Удалить</button>
+    </form>
+    </div>
+    </div>
+
+<div id="fill_acc" class="func_create">
+   <button class="exit" id="exit_m_m_m" onclick="document.getElementById('fill_acc').style.transform = 'scale(0.5, 0.5)'; document.getElementById('fill_acc').style.top = '-100%'; document.getElementById('fill_acc').style.opacity = '0'; document.getElementById('fill_acc').style.borderRadius = '50%'">Выход</button>
+<div align="center">
+
+    <form action="http://127.0.0.1:5000/accounts_fill/{{ user_info.user_name }}" method="post">
+        <div>
+            <label for="name">номер счета для его пополнения:</label>
+            <input type="text" id="fill_acc_num" name="acc_num" maxlength="35">
+        </div>
+        <div>
+            <label for="name">Введите сумму для пополнение:</label>
+            <input type="number" id="fill_money" name="amount" max="10000">
+        </div>
+        <button type="submit">Пополнить</button>
+    </form>
+    </div>
+    </div>
+
+<div id="withdraw_acc" class="func_create">
+   <button class="exit" id="exit_m_m_m_m" onclick="document.getElementById('withdraw_acc').style.transform = 'scale(0.5, 0.5)'; document.getElementById('withdraw_acc').style.top = '-100%'; document.getElementById('withdraw_acc').style.opacity = '0'; document.getElementById('withdraw_acc').style.borderRadius = '50%'">Выход</button>
+<div align="center">
+
+    <form action="http://127.0.0.1:5000/accounts_withdraw/{{ user_info.user_name }}" method="post">
+        <div>
+            <label for="name">номер счета для снятия денег:</label>
+            <input type="text" id="withdraw_acc_num" name="acc_num" maxlength="35">
+        </div>
+        <div>
+            <label for="name">Введите сумму для снятия:</label>
+            <input type="number" id="withdraw_money" name="amount" max="10000">
+        </div>
+        <button type="submit">Снять</button>
+    </form>
+    </div>
+    </div>
+
+<div id="transfer_acc" class="func_create">
+   <button class="exit" id="exit_m_m_m_m_m" onclick="document.getElementById('transfer_acc').style.transform = 'scale(0.5, 0.5)'; document.getElementById('transfer_acc').style.top = '-100%'; document.getElementById('transfer_acc').style.opacity = '0'; document.getElementById('transfer_acc').style.borderRadius = '50%'">Выход</button>
+<div align="center">
+
+    <form action="http://127.0.0.1:5000/accounts_transfer/{{ user_info.user_name }}" method="post">
+        <div>
+            <label for="name" id="complete_this">Номер счета:</label>
+            <input type="text" id="transfer_acc_num" name="acc_num_1" placeholder="Отправитель" maxlength="35">
+        </div>
+        <div>
+            <label for="name">Номер счета:</label>
+            <input type="text" id="transfer_acc_num_2" name="acc_num_2" placeholder="Получатель" oninput="var josl = document.getElementById('transfer_acc_num_2').value;document.getElementById('complete_this').innerHTML = 'Номер счета (отправитель  ' + josl + '):'" maxlength="35">
+        </div>
+        <div>
+            <label for="name">Сумма для перевода:</label>
+            <input type="number" id="transfer_money" name="amount" max="10000">
+        </div>
+        <button type="submit">Совершить перевод</button>
+    </form>
+    </div>
+    </div>
+
+<div class="func_create" id="get_accounts">
+<button class="exit" id="exit_m_mm_m_m_m" style="position: absolute" onclick="document.getElementById('get_accounts').style.transform = 'scale(0.5, 0.5)'; document.getElementById('get_accounts').style.top = '-100%'; document.getElementById('get_accounts').style.opacity = '0'; document.getElementById('get_accounts').style.borderRadius = '50%'">Выход</button>
+
+    <iframe src="http://127.0.0.1:5000/accounts/{{ user_info.user_name }}" style = "border: none; width:100%; height:90%; position: absolute;left: 0;bottom: 0 "></iframe>
+
+</div>
+<div id="myFrame" style="transition: 0.3s;position: absolute; top: 0; left: 0; width: 100%; border: none; height: 100%; overflow: hidden;">
+<pre>
+    <h1>Здравствуйте {{ user_info.last_name }}!</h1><br>
+</pre>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

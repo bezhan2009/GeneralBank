@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Успешная регистрация/Вход</title>
+    <link rel="stylesheet" href="style/main_css_fail_for_log.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_css_fail_for_log.css') }}">
+    <style>
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: red;
+
+        }
+        h1 {
+            font-family: sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<pre>
+    <h1>Похоже вы ввели не корректные данные</h1><br>
+    <a href="http://127.0.0.1:5000/reg_log/{{ is_what }}" style="text-align: center">Попробовать ещё раз</a>
+</pre>
+</body>
+</html>

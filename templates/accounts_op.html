@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список счетов</title>
+    <style>
+        html, body{
+            background: transparent;
+            margin: 40px;
+            padding: 10px;
+            color: #f9f9f9;
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .3);
+        }
+        tr{
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .1);
+            color: #f1f1f1;
+        }
+        tr:nth-child(even) {
+            overflow: hidden;
+            color: #f1f1f1;
+            background-color: rgba(255, 255, 255, .2);
+        }
+        @keyframes gradient_reg {
+  0% {
+    background-position: 60% 20%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 60% 20%;
+  }
+}
+        .color_gr{
+            overflow: hidden;background: linear-gradient(310deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4)); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .2);
+        background-size: 200%  100%;
+          animation: gradient_reg 4s ease infinite;
+        }
+    </style>
+</head>
+<body>
+
+<div align="center" class="color_gr">
+    <h1>Мои счета:</h1>
+    <table>
+        <tr>
+            <th>Имя пользователя</th>
+            <th>Номер счета</th>
+            <th>Баланс</th>
+        </tr>
+        {% for account in account_info %}
+        <tr>
+            <td>{{ account.user_name }}</td>
+            <td>{{ account.acc_num }}</td>
+            <td>{{ account.balance }}$</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+</body>
+</html>

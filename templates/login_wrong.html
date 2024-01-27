@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Вход{% endblock %}
+{% block func_next %}
+<a href="http://127.0.0.1:5000/registration" style="position: fixed; width: 150px;height: 20px; right: 20px; text-align: center; line-height: 20px; text-decoration: none;">
+     Регистрация
+   </a>
+{% endblock %}
+
+{% block that_login_reg %}
+<h1 style="color: red">Не правильное имя или пароль!!!</h1>
+<h2 align="center">Вход</h2>
+    <form action="http://127.0.0.1:5000/login" method="post">
+        <div>
+            <label for="name">Логин:</label>
+            <input type="text" id="name" name="name">
+        </div>
+        <div>
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <button type="submit">Вход</button>
+    </form>
+{% endblock %}

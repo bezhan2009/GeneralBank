@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="style/main_css_fail_for_log.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_css_fail_for_log.css') }}">
+</head>
+<body>
+<div class="gradient-container">
+</div>
+{% block func_next %}{% endblock %}
+
+{% block that_login_reg %}{% endblock %}
+</body>
+</html>

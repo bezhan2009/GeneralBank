@@ -1,0 +1,10 @@
+.idea/.gitignore
+.idea/again.iml
+.idea/dataSources.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+__pycache__/connect.cpython-312.pyc
+__pycache__/funs.cpython-312.pyc
+connect.py

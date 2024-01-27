@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connection error</title>
+    <link rel="stylesheet" href="style/main_css_fail_for_log.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_css_fail_for_log.css') }}">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+</head>
+<body>
+<div class="gradient-container" id="gradient-container">
+</div>
+<div style="position:relative;">
+    <h1 style="color: #f9f9f9">
+        Ошибка подключения поэтому вам придётся в ручную написать подключение к базе данных
+    </h1>
+    <h2 style="color: red;margin: 5px auto">
+        Внимание: мы не можем сохранить то что вы пишите здесь в ручную для того чтобы всё сохранилось вам придётся открыть файл connection.py и прописать там свои данные для подключения в те переменные
+    </h2>
+</div>
+    <form action="http://127.0.0.1:5000/manually_connect" method="post" style="margin: 10px auto">
+        <div>
+            <label for="db_name" id="complete_this">Название вашей базы данных:</label>
+            <input type="text" id="transfer_acc_num" name="db_name" placeholder="postgres" maxlength="35">
+        </div>
+        <div>
+            <label for="user">Имя подключение (user):</label>
+            <input type="text" id="transfer_acc_num_2" name="user" placeholder="postgres">
+        </div>
+        <div>
+            <label for="password">Пароль для подключение к базе данных::</label>
+            <input type="password" id="transfer_money" name="password" max="10000">
+        </div>
+        <button type="submit">Совершить переподключения</button>
+    </form>
+    </div>
+    </div>
+
+</body>
+</html>
