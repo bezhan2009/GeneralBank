@@ -83,7 +83,7 @@ try:
     @app.route('/register', methods=["POST"])
     def registr_add():
         try:
-            cursor.execute("CREATE TABLE IF NOT EXISTS Loogined_users(id serial, login_user_p VARCHAR(40))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             conn.commit()
             cursor.execute("SELECT * FROM Logined_users")
             view_logined = cursor.fetchone()
