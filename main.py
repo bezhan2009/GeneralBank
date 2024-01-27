@@ -72,7 +72,7 @@ try:
     def logout_():
         try:
             cursor.execute("DROP TABLE Logined_users CASCADE")
-            cursor.execute("CREATE TABLE IF NOT EXISTS Loogined_users(id serial, login_user_p VARCHAR(40))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             conn.commit()
             return render_template('login.html')
 
