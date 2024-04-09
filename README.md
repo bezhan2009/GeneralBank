@@ -1,30 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    padding: 20px;
-}
 
-h2 {
-    color: #007bff;
-}
-
-h3 {
-    margin-bottom: 10px;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 20px auto;
-}
-
-</style>
 </head>
 <body>
     <h2>Консольное приложение приобрело интерфейс</h2>
