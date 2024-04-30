@@ -23,7 +23,6 @@
         <ul class="menu">
             <li><button onclick="pop_op_p()">Мои счета</button></li>
             <li><button onclick="create_account()">Создать счет</button></li>
-            <li><button onclick="delete_acc()">Удалить счет</button></li>
             <li><button onclick="fill_money()">Пополнение денег</button></li>
             <li><button onclick="withdraw_money()">Снятие денег</button></li>
             <li><button onclick="transfer_money()">Перевод денег</button></li>
@@ -56,26 +55,6 @@
         </form>
         </div>
         </div>
-
-   <div id="del_acc" class="func_create" style="display: flex; justify-content: space-between;">
-    <div style="flex: 1; padding-right: 10px; border-right: 1px solid #ccc;">
-        <button class="exit" id="exit_m_m" onclick="no_come_go_o()" style="width: 100%;">Выход</button>
-        <form action="http://127.0.0.1:5000/dolo/{{ user_info.user_name }}" method="post">
-            <div>
-                <label for="name">Номер счета для удаления:</label>
-                <input type="text" id="del_acc_" name="acc_num" maxlength="35">
-            </div>
-            <button type="submit" style="width: 100%;">Удалить</button>
-        </form>
-    </div>
-    <div style="flex: 1; overflow: hidden;">
-        <iframe src="http://127.0.0.1:5000/accounts/{{ user_info.user_name }}" style="border: none; width:200%; height:90%; transform: translateX(-50%); position: relative; left: 50%;"></iframe>
-    </div>
-</div>
-
-
-
-
 
     <div id="fill_acc" class="func_create">
        <button class="exit" id="exit_m_m_m" onclick="document.getElementById('fill_acc').style.transform = 'scale(0.5, 0.5)'; document.getElementById('fill_acc').style.top = '-100%'; document.getElementById('fill_acc').style.opacity = '0'; document.getElementById('fill_acc').style.borderRadius = '50%'">Выход</button>
@@ -143,7 +122,27 @@
     </div>
     <div id="myFrame" style="transition: 0.3s;position: absolute; top: 0; left: 0; width: 100%; border: none; height: 100%; overflow: hidden;">
     <pre>
-        <h1>Здравствуйте {{ user_info.last_name }}!</h1><br>
+        <h1 id="hello_text">Здравствуйте {{ user_info.last_name }}!</h1><br>
+        <h6 id="is_success" style="position: absolute;visibility: hidden">{{ user_info.is_success }}</h6>
+        <h6 id="is_login" style="position: absolute;visibility: hidden">{{ user_info.is_login }}</h6>
+        <script>
+            is_success = document.getElementById('is_success').innerHTML;
+            is_login = document.getElementById('is_login').innerHTML;
+            hello_text = document.getElementById('hello_text');
+            if (is_login === "True" && is_success === "True") {
+                hello_text.innerHTML = "Здравствуйте {{ user_info.last_name }}!";
+            }
+            else if (is_login === "False" && is_success === "True") {
+                hello_text.innerHTML = "Дейсвтия с счетами была выполнено успешно!";
+            }
+            else if (is_login === "False" && is_success === "False") {
+                hello_text.innerHTML = "Хм мм похоже вы ввели некорректные данные";
+                hello_text.style.color = "#D71A63";
+            }
+            else {
+                hello_text.innerHTML = "Что случилось ? :)";
+            }
+        </script>
     </pre>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

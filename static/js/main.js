@@ -53,21 +53,8 @@ window.onload = function() {
                 document.getElementById('create_acc').style.borderRadius = '0%'
             }
         }
-        function delete_acc(){
-            if (document.getElementById('del_acc').style.opacity == '1') {
-                document.getElementById('del_acc').style.transform = "scale(0.5, 0.5)"
-                document.getElementById('del_acc').style.top = '-100%'
-                document.getElementById('del_acc').style.opacity = '0'
-                document.getElementById('del_acc').style.borderRadius = '50%'
-            }
-            else{
-                document.getElementById('del_acc').style.transform = "scale(1, 1)"
-                document.getElementById('del_acc').style.opacity = '1'
-                document.getElementById('del_acc').style.top = '0%'
-                document.getElementById('del_acc').style.borderRadius = '0%'
 
-            }
-        }
+
         function fill_money(){
             if (document.getElementById('fill_acc').style.opacity == '1') {
                 document.getElementById('fill_acc').style.transform = "scale(0.5, 0.5)"

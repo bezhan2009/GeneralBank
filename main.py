@@ -58,13 +58,19 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
 
             else:
-                return render_template("register.html")
+                info = {
+                    'is_success': True,
+                    'is_login': False,
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -76,6 +82,10 @@ try:
             cursor.execute("DROP TABLE Logined_users CASCADE")
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             conn.commit()
+            info = {
+                'is_success': True,
+                'is_logout': True
+            }
             return render_template('login.html')
 
         except BaseException as e:
@@ -152,7 +162,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True,
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
@@ -169,7 +181,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     if y:
@@ -177,7 +191,12 @@ try:
                         cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (user_name,))
                         conn.commit()
                         return render_template("index.html", user_info=user_info_dict)
-                return render_template("login_wrong.html")
+                info = {
+                    'is_success': True,
+                    'is_login': True,
+                    'is_logout': False
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -193,7 +212,9 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
                 cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'", (user_info_dict['user_name'],))
                 rows = cursor.fetchall()
@@ -228,14 +249,17 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
                 if create_an_account(id_us, acc_num):
-                    return render_template('correct.html', user_info=user_info_dict)
+                    return render_template('index.html', user_info=user_info_dict)
                 else:
-                    return render_template("successfully.html")
+                    user_info_dict['is_success'] = False
+                    return render_template("index.html", user_info=user_info_dict)
             else:
-                return render_template("successfully.html")
+                return render_template("login.html")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -255,9 +279,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -266,9 +292,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
@@ -285,9 +313,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -296,9 +326,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -316,9 +348,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -327,9 +361,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -348,9 +384,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -359,9 +397,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -407,13 +447,16 @@ try:
                 'user_name': user_info[0],
                 'last_name': user_info[1],
                 'password': user_info[2],
-                'age': user_info[3]
+                'age': user_info[3],
+                'is_success': True,
+                'is_login': False
             }
 
-            if delete_an_account(user_info['id'], acc_num):
-                return render_template('correct.html', user_info=user_info_dict)
+            if delete_an_account_from_user_accounts(user_info[0], acc_num):  # Обращаемся к элементам кортежа по индексам
+                return render_template('accounts_op.html', user_info=user_info_dict)
             else:
-                return render_template('successfully.html', user_info=user_info_dict)
+                user_info_dict['is_success'] = False
+                return render_template("index.html", user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)

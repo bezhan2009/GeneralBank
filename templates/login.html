@@ -19,4 +19,16 @@
         </div>
         <button type="submit">Вход</button>
     </form>
+<h6 id="is_success" style="position: absolute;visibility: hidden">{{ info.is_success }}</h6>
+<script>
+    is_success = document.getElementById('is_success')
+    if (is_success.innerHTML === "True") {
+        if (confirm("Логин или пароль не правильные!!!")) {
+            alert("Тестовый юзер логин bezhan пароль bezhan2009")
+        }
+        else {
+            alert("При нажатии на Ок вы бы получили данные об тестовом юзере")
+        }
+    }
+</script>
 {% endblock %}
