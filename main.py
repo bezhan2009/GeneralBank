@@ -1,3 +1,5 @@
+
+#upgrade
 try:
 
     from flask import Flask, jsonify, url_for, request, render_template, redirect, session
@@ -72,7 +74,7 @@ try:
     def logout_():
         try:
             cursor.execute("DROP TABLE Logined_users CASCADE")
-            cursor.execute("CREATE TABLE IF NOT EXISTS Loogined_users(id serial, login_user_p VARCHAR(40))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             conn.commit()
             return render_template('login.html')
 
@@ -389,7 +391,29 @@ try:
                     'password': user_info[2],
                     'age': user_info[3]
                 }
-                return render_template('register.html', user_info=user_info_dict)
+                return render_template('login.html', user_info=user_info_dict)
+
+        except BaseException as e:
+            return render_template("error_p.html", reall_error=e)
+
+
+    @app.route('/delete_account/<string:acc_num>', methods=['GET'])
+    def delete_account(acc_num):
+        try:
+            user_name = session.get('user_name')
+            cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+            user_info = cursor.fetchone()
+            user_info_dict = {
+                'user_name': user_info[0],
+                'last_name': user_info[1],
+                'password': user_info[2],
+                'age': user_info[3]
+            }
+
+            if delete_an_account(user_info['id'], acc_num):
+                return render_template('correct.html', user_info=user_info_dict)
+            else:
+                return render_template('successfully.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
