@@ -1,15 +1,13 @@
-
 #upgrade
 try:
 
     from flask import Flask, jsonify, url_for, request, render_template, redirect, session
-
+    from connect import engine
     from funs import *
 
     app = Flask(__name__)
 
     app.secret_key = 'bezhan200910203040'
-
 
     db_name = "postgres"
     user = "postgres"
@@ -27,13 +25,10 @@ try:
     cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
 
 
-
     # cursor.execute("DROP TABLE Accounts_users CASCADE")
     # conn.commit()
     # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
     # conn.commit()
-
-
 
     @app.route('/manually_connect', methods=['POST'])
     def manually_connect_p():
@@ -41,6 +36,7 @@ try:
         user = request.form['user']
         password = request.form['password']
         manually_connect(db_name, user, password)
+
 
     @app.route('/', methods=['GET'])
     def index():
@@ -119,14 +115,14 @@ try:
                 last_name = request.form['last_name']
                 password = request.form['password']
                 age = request.form['age']
-                cursor.execute("SELECT user_name FROM people WHERE user_name = %s", (name, ))
+                cursor.execute("SELECT user_name FROM people WHERE user_name = %s", (name,))
                 names = cursor.fetchall()
 
                 if names:
                     return render_template("register_wrong.html")
 
                 else:
-                    cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (name, ))
+                    cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (name,))
                     cursor.execute("INSERT INTO people(user_name, last_name, password, age) VALUES (%s, %s, %s, %s)",
                                    (name, last_name, password, age))
                     conn.commit()
@@ -137,9 +133,11 @@ try:
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
+
     @app.route('/registration', methods=['GET'])
     def get_link_reg():
         return render_template('register.html')
+
 
     @app.route('/log', methods=['GET'])
     def get_link_log():
@@ -173,7 +171,7 @@ try:
                 user_name = request.form['name']
                 password = request.form['password']
                 y = login_user(user_name, password)
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name, ))
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 conn.commit()
                 if user_info:
@@ -216,7 +214,8 @@ try:
                     'is_success': True,
                     'is_login': False
                 }
-                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'", (user_info_dict['user_name'],))
+                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
+                               (user_info_dict['user_name'],))
                 rows = cursor.fetchall()
                 if rows:
                     serialized_accounts = []
@@ -228,7 +227,8 @@ try:
                             'balance': row[4]
                         }
                         serialized_accounts.append(account)
-                    return render_template("accounts_op.html", user_info=user_info_dict, account_info=serialized_accounts)
+                    return render_template("accounts_op.html", user_info=user_info_dict,
+                                           account_info=serialized_accounts)
                 else:
                     return render_template("no_accounts.html")
             else:
@@ -236,6 +236,7 @@ try:
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
+
 
     @app.route('/create_account/<int:id_us>', methods=["POST"])
     def create_acc(id_us):
@@ -263,8 +264,6 @@ try:
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
-
-
 
 
     @app.route('/dolo/<int:id_us>', methods=["POST"])
@@ -299,6 +298,7 @@ try:
                 return render_template('index.html', user_info=user_info_dict)
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
+
 
     @app.route('/accounts_fill/<int:id_us>', methods=['POST'])
     def fill_money_(id_us):
@@ -335,6 +335,7 @@ try:
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
+
     @app.route('/accounts_withdraw/<int:id_us>', methods=['POST'])
     def withdraw_money_(id_us):
         try:
@@ -370,38 +371,40 @@ try:
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
+
+    # app.py
+
+    import ctypes
+
+    # Загрузка библиотеки Rust
+    lib = ctypes.cdll.LoadLibrary('./target/debug/libtransactions_bank.so')
+
+    # Определение типов аргументов и возвращаемого значения
+    lib.transfer_money.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
+    lib.transfer_money.restype = ctypes.c_bool
+
+
     @app.route('/accounts_transfer/<int:id_us>', methods=['POST'])
     def transfer_money_(id_us):
         try:
             user_name = session.get('user_name')
-            acc_num_fill_1 = request.form['acc_num_1']
-            acc_num_fill_2 = request.form['acc_num_2']
-            amount = request.form['amount']
-            if transfer_money(id_us, acc_num_fill_1, acc_num_fill_2, amount):
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
-                user_info = cursor.fetchone()
-                user_info_dict = {
-                    'user_name': user_info[0],
-                    'last_name': user_info[1],
-                    'password': user_info[2],
-                    'age': user_info[3],
-                    'is_success': True,
-                    'is_login': False
-                }
-                return render_template('index.html', user_info=user_info_dict)
+            acc_num_fill_1 = request.form['acc_num_1'].encode('utf-8')
+            acc_num_fill_2 = request.form['acc_num_2'].encode('utf-8')
+            amount = int(request.form['amount'])
 
+            # Пример передачи указателя на соединение с базой данных
+            connection_ptr = ctypes.c_void_p(engine.raw_connection().pointer())
+
+            # Вызов функции transfer_money из Rust
+            result = lib.transfer_money(connection_ptr, id_us, acc_num_fill_1, acc_num_fill_2, amount)
+
+            # Обработка результата и возврат ответа
+            if result:
+                return render_template('index.html',
+                                       user_info={'user_name': user_name, 'is_success': True, 'is_login': False})
             else:
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
-                user_info = cursor.fetchone()
-                user_info_dict = {
-                    'user_name': user_info[0],
-                    'last_name': user_info[1],
-                    'password': user_info[2],
-                    'age': user_info[3],
-                    'is_success': False,
-                    'is_login': False
-                }
-                return render_template('index.html', user_info=user_info_dict)
+                return render_template('index.html',
+                                       user_info={'user_name': user_name, 'is_success': False, 'is_login': False})
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -452,7 +455,8 @@ try:
                 'is_login': False
             }
 
-            if delete_an_account_from_user_accounts(user_info[0], acc_num):  # Обращаемся к элементам кортежа по индексам
+            if delete_an_account_from_user_accounts(user_info[0],
+                                                    acc_num):  # Обращаемся к элементам кортежа по индексам
                 return render_template('accounts_op.html', user_info=user_info_dict)
             else:
                 user_info_dict['is_success'] = False
@@ -466,5 +470,7 @@ try:
         app.run(debug=True)
 
 except BaseException as e:
-    get_err(e)
+    def getlisterror(e):
+        return render_template('error_p', reall_error=e)
 
+    getlisterror(e)
