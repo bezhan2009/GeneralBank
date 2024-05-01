@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, url_for, request, render_template, redirect, session
+import psycopg2
 
 app = Flask(__name__)
 app.secret_key = 'bezhan200910203040'
-import psycopg2
+
 
 db_name = "postgres"
 user = "postgres"
