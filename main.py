@@ -377,7 +377,7 @@ try:
     import ctypes
 
     # Загрузка библиотеки Rust
-    lib = ctypes.cdll.LoadLibrary('C:/Users/Admin/PycharmProjects/again/transactions_bank/target/debug/libtransactions_bank.so')
+    lib = ctypes.cdll.LoadLibrary('C:/Users/Admin/PycharmProjects/again/transactions_bank/target/debug/transactions_bank.dll')
 
 
     # Определение типов аргументов и возвращаемого значения
