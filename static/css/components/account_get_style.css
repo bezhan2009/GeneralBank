@@ -50,8 +50,8 @@
 
         .color_gr{
             overflow: hidden;background: linear-gradient(310deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4)); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .2);
-        background-size: 200%  100%;
-          animation: gradient_reg 4s ease infinite;
+            background-size: 200%  100%;
+            animation: gradient_reg 4s ease infinite;
         }
 
         button {
