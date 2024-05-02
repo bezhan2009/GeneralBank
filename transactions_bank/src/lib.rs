@@ -1,5 +1,5 @@
 use rusqlite::{params, Connection};
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 #[no_mangle]
 pub extern "C" fn transfer_money(conn_ptr: *mut Connection, user_id: i32, acc_num_1: *const libc::c_char, acc_num_2: *const libc::c_char, amount: i32) -> bool {
@@ -41,6 +41,9 @@ pub extern "C" fn transfer_money(conn_ptr: *mut Connection, user_id: i32, acc_nu
                 }
             };
 
+            // Завершаем заем на объект Connection для вызова savepoint()
+            drop(savepoint);
+
             let mut cursor_1 = match tx.prepare("SELECT account_number, balance FROM Accounts_users WHERE user_id = ? AND account_number = ? AND is_deleted = 'False'") {
                 Ok(cursor) => cursor,
                 Err(_) => {
@@ -69,7 +72,7 @@ pub extern "C" fn transfer_money(conn_ptr: *mut Connection, user_id: i32, acc_nu
                 }
             };
 
-            let result_2_exists: bool = match cursor_2.query_row(params![acc_num_2], |row| Ok(row.get::<usize, String>(0).is_ok())) {
+            let result_2_exists: bool = match cursor_2.query_row(params![&acc_num_2_string as &dyn rusqlite::ToSql], |row| Ok(row.get::<usize, String>(0).is_ok())) {
                 Ok(result) => result,
                 Err(_) => {
                     savepoint.rollback().expect("Failed to rollback savepoint");
@@ -91,7 +94,7 @@ pub extern "C" fn transfer_money(conn_ptr: *mut Connection, user_id: i32, acc_nu
                     }
 
                     match tx.execute("UPDATE Accounts_users SET balance = balance + ? WHERE account_number = ?",
-                                     params![amount, acc_num_2]) {
+                                     params![amount, &acc_num_2_string as &dyn rusqlite::ToSql]) {
                         Ok(_) => {},
                         Err(_) => {
                             savepoint.rollback().expect("Failed to rollback savepoint");

@@ -372,40 +372,38 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    # app.py
-
-    import ctypes
-
-    # Загрузка библиотеки Rust
-    lib = ctypes.cdll.LoadLibrary('C:/Users/Admin/PycharmProjects/again/transactions_bank/target/debug/transactions_bank.dll')
-
-
-    # Определение типов аргументов и возвращаемого значения
-    lib.transfer_money.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
-    lib.transfer_money.restype = ctypes.c_bool
-
-
     @app.route('/accounts_transfer/<int:id_us>', methods=['POST'])
     def transfer_money_(id_us):
         try:
             user_name = session.get('user_name')
-            acc_num_fill_1 = request.form['acc_num_1'].encode('utf-8')
-            acc_num_fill_2 = request.form['acc_num_2'].encode('utf-8')
-            amount = int(request.form['amount'])
+            acc_num_fill_1 = request.form['acc_num_1']
+            acc_num_fill_2 = request.form['acc_num_2']
+            amount = request.form['amount']
+            if transfer_money(id_us, acc_num_fill_1, acc_num_fill_2, amount):
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+                user_info = cursor.fetchone()
+                user_info_dict = {
+                    'user_name': user_info[0],
+                    'last_name': user_info[1],
+                    'password': user_info[2],
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
+                }
+                return render_template('index.html', user_info=user_info_dict)
 
-            # Пример передачи указателя на соединение с базой данных
-            connection_ptr = ctypes.c_void_p(engine.raw_connection().pointer())
-
-            # Вызов функции transfer_money из Rust
-            result = lib.transfer_money(connection_ptr, id_us, acc_num_fill_1, acc_num_fill_2, amount)
-
-            # Обработка результата и возврат ответа
-            if result:
-                return render_template('index.html',
-                                       user_info={'user_name': user_name, 'is_success': True, 'is_login': False})
             else:
-                return render_template('index.html',
-                                       user_info={'user_name': user_name, 'is_success': False, 'is_login': False})
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+                user_info = cursor.fetchone()
+                user_info_dict = {
+                    'user_name': user_info[0],
+                    'last_name': user_info[1],
+                    'password': user_info[2],
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
+                }
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
