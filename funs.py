@@ -91,23 +91,22 @@ def login_user(login, password):
         return False
 
 
-def create_an_account(_id, acc_num):
+def create_an_account(_id, acc_num, username):
     cursor = conn.cursor()
-    x = True
     try:
         cursor.execute('INSERT INTO Accounts_users  '
                        '(user_id, account_number) '
                        'VALUES (%s, %s)', (_id, acc_num,))
+        cursor.execute('UPDATE Accounts_users SET user_name_id = %s WHERE user_id = %s', (username, _id))
         conn.commit()
 
-        cursor.execute('SELECT user_name FROM people WHERE id = %s', (_id,))
-        get_name = cursor.fetchone()[0]
+        return True  # Возвращаем True, если операции прошли успешно
 
-        cursor.execute('UPDATE Accounts_users SET user_name_id = %s WHERE user_id = %s', (get_name, _id))
-        conn.commit()
     except BaseException as e:
-        x = False
-    return x
+        conn.rollback()
+        return False  # Возвращаем False, если возникла ошибка
+
+
 
 
 def delete_an_account(_id, acc_id):

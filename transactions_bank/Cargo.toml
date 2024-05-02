@@ -3,8 +3,6 @@ name = "transactions_bank"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 rusqlite = "0.27"
 libc = "0.2"
@@ -14,6 +12,6 @@ name = "transactions_bank_bin"
 path = "src/main.rs"
 
 [lib]
-name = "transactions_bank"
+name = "transactions_bank"  # Удалено "_lib"
 crate-type = ["cdylib"]
 path = "src/lib.rs"

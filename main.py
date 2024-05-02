@@ -82,7 +82,7 @@ try:
                 'is_success': True,
                 'is_logout': True
             }
-            return render_template('login.html')
+            return render_template('login.html', info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -105,7 +105,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
@@ -119,7 +121,12 @@ try:
                 names = cursor.fetchall()
 
                 if names:
-                    return render_template("register_wrong.html")
+                    info = {
+                        'is_success': False,
+                        'is_login': False,
+                        'is_logout': False
+                    }
+                    return render_template("register.html", info=info)
 
                 else:
                     cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (name,))
@@ -190,8 +197,8 @@ try:
                         conn.commit()
                         return render_template("index.html", user_info=user_info_dict)
                 info = {
-                    'is_success': True,
-                    'is_login': True,
+                    'is_success': False,
+                    'is_login': False,
                     'is_logout': False
                 }
                 return render_template("login.html", info=info)
@@ -254,13 +261,18 @@ try:
                     'is_success': True,
                     'is_login': False
                 }
-                if create_an_account(id_us, acc_num):
+                if create_an_account(id_us, acc_num, user_info_dict['last_name']):
                     return render_template('index.html', user_info=user_info_dict)
                 else:
-                    user_info_dict['is_success'] = False
+                    user_info_dict['is_success'] = False  # Устанавливаем флаг is_success в False
                     return render_template("index.html", user_info=user_info_dict)
             else:
-                return render_template("login.html")
+                info = {
+                    'is_success': True,
+                    'is_login': False,
+                    'is_logout': False
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -372,40 +384,38 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    # app.py
-
-    import ctypes
-
-    # Загрузка библиотеки Rust
-    lib = ctypes.cdll.LoadLibrary('C:/Users/Admin/PycharmProjects/again/transactions_bank/target/debug/libtransactions_bank.so')
-
-
-    # Определение типов аргументов и возвращаемого значения
-    lib.transfer_money.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
-    lib.transfer_money.restype = ctypes.c_bool
-
-
     @app.route('/accounts_transfer/<int:id_us>', methods=['POST'])
     def transfer_money_(id_us):
         try:
             user_name = session.get('user_name')
-            acc_num_fill_1 = request.form['acc_num_1'].encode('utf-8')
-            acc_num_fill_2 = request.form['acc_num_2'].encode('utf-8')
-            amount = int(request.form['amount'])
+            acc_num_fill_1 = request.form['acc_num_1']
+            acc_num_fill_2 = request.form['acc_num_2']
+            amount = request.form['amount']
+            if transfer_money(id_us, acc_num_fill_1, acc_num_fill_2, amount):
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+                user_info = cursor.fetchone()
+                user_info_dict = {
+                    'user_name': user_info[0],
+                    'last_name': user_info[1],
+                    'password': user_info[2],
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
+                }
+                return render_template('index.html', user_info=user_info_dict)
 
-            # Пример передачи указателя на соединение с базой данных
-            connection_ptr = ctypes.c_void_p(engine.raw_connection().pointer())
-
-            # Вызов функции transfer_money из Rust
-            result = lib.transfer_money(connection_ptr, id_us, acc_num_fill_1, acc_num_fill_2, amount)
-
-            # Обработка результата и возврат ответа
-            if result:
-                return render_template('index.html',
-                                       user_info={'user_name': user_name, 'is_success': True, 'is_login': False})
             else:
-                return render_template('index.html',
-                                       user_info={'user_name': user_name, 'is_success': False, 'is_login': False})
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+                user_info = cursor.fetchone()
+                user_info_dict = {
+                    'user_name': user_info[0],
+                    'last_name': user_info[1],
+                    'password': user_info[2],
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
+                }
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -423,19 +433,18 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
                 return render_template('index.html', user_info=user_info_dict)
             else:
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
-                user_info = cursor.fetchone()
-                user_info_dict = {
-                    'user_name': user_info[0],
-                    'last_name': user_info[1],
-                    'password': user_info[2],
-                    'age': user_info[3]
+                info = {
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('login.html', user_info=user_info_dict)
+
+                return render_template('login.html', info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -455,13 +464,28 @@ try:
                 'is_success': True,
                 'is_login': False
             }
-
             if delete_an_account_from_user_accounts(user_info[0],
                                                     acc_num):  # Обращаемся к элементам кортежа по индексам
-                return render_template('accounts_op.html', user_info=user_info_dict)
+                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
+                               (user_info_dict['user_name'],))
+                rows = cursor.fetchall()
+                if rows:
+                    serialized_accounts = []
+                    for row in rows:
+                        account = {
+                            'user_id': row[1],
+                            'user_name': row[2],
+                            'acc_num': row[3],
+                            'balance': row[4]
+                        }
+                        serialized_accounts.append(account)
+                    return render_template("accounts_op.html", user_info=user_info_dict,
+                                           account_info=serialized_accounts)
+
+                else:
+                    return render_template("no_accounts.html")
             else:
-                user_info_dict['is_success'] = False
-                return render_template("index.html", user_info=user_info_dict)
+                return render_template("error_p.html", reall_error="Account or User does not exist")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
