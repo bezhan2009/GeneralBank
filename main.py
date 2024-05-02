@@ -261,20 +261,18 @@ try:
                     'is_success': True,
                     'is_login': False
                 }
-                if create_an_account(id_us, acc_num):
+                if create_an_account(id_us, acc_num, user_info_dict['last_name']):
                     return render_template('index.html', user_info=user_info_dict)
                 else:
-                    user_info_dict = {
-                        'user_name': user_info[0],
-                        'last_name': user_info[1],
-                        'password': user_info[2],
-                        'age': user_info[3],
-                        'is_success': False,
-                        'is_login': False
-                    }
+                    user_info_dict['is_success'] = False  # Устанавливаем флаг is_success в False
                     return render_template("index.html", user_info=user_info_dict)
             else:
-                return render_template("login.html")
+                info = {
+                    'is_success': True,
+                    'is_login': False,
+                    'is_logout': False
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -468,19 +466,26 @@ try:
             }
             if delete_an_account_from_user_accounts(user_info[0],
                                                     acc_num):  # Обращаемся к элементам кортежа по индексам
-                return render_template('accounts_op.html', user_info=user_info_dict)
+                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
+                               (user_info_dict['user_name'],))
+                rows = cursor.fetchall()
+                if rows:
+                    serialized_accounts = []
+                    for row in rows:
+                        account = {
+                            'user_id': row[1],
+                            'user_name': row[2],
+                            'acc_num': row[3],
+                            'balance': row[4]
+                        }
+                        serialized_accounts.append(account)
+                    return render_template("accounts_op.html", user_info=user_info_dict,
+                                           account_info=serialized_accounts)
+
+                else:
+                    return render_template("no_accounts.html")
             else:
-                user_name = session.get('user_name')
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
-                user_info_dict = {
-                    'user_name': user_info[0],
-                    'last_name': user_info[1],
-                    'password': user_info[2],
-                    'age': user_info[3],
-                    'is_success': False,
-                    'is_login': False
-                }
-                return render_template("index.html", user_info=user_info_dict)
+                return render_template("error_p.html", reall_error="Account or User does not exist")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
