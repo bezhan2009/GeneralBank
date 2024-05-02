@@ -377,7 +377,8 @@ try:
     import ctypes
 
     # Загрузка библиотеки Rust
-    lib = ctypes.cdll.LoadLibrary('./target/debug/libtransactions_bank.so')
+    lib = ctypes.cdll.LoadLibrary('C:/Users/Admin/PycharmProjects/again/transactions_bank/target/debug/libtransactions_bank.so')
+
 
     # Определение типов аргументов и возвращаемого значения
     lib.transfer_money.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
@@ -470,7 +471,4 @@ try:
         app.run(debug=True)
 
 except BaseException as e:
-    def getlisterror(e):
-        return render_template('error_p', reall_error=e)
-
-    getlisterror(e)
+    get_err(e)
