@@ -2,25 +2,54 @@
 try:
 
     from flask import Flask, jsonify, url_for, request, render_template, redirect, session
-    from connect import engine
     from funs import *
+    from connect_self import manually_connect, redirect_to_connect, redirect_to_index
 
     app = Flask(__name__)
 
     app.secret_key = 'bezhan200910203040'
+
+    @app.route('/manually_connect/', methods=['POST'])
+    def manually_connect_p(redirect_to_index_=True):
+        db_name = request.form['db_name']
+        user = request.form['user']
+        password = request.form['password']
+        get_item_for_connection(db_name, user, password)
+        """
+            conn = manually_connect(db_name, user, password)
+            if conn and redirect_to_index_:
+                redirect_to_index()
+                return conn
+            elif conn and not redirect_to_index_:
+                return conn
+            else:
+                return redirect_to_connect()
+        """
+
+    def get_item_for_connection(db_name, user, password):
+        return db_name, user, password
+    
+
+
 
     db_name = "postgres"
     user = "postgres"
     password = "bezhan2009"
     port = "5432"
     host = "127.0.0.1"
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+    except psycopg2.Error as e:
+        print(e)
+        redirect_to_connect()
+
+
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
 
@@ -29,13 +58,6 @@ try:
     # conn.commit()
     # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
     # conn.commit()
-
-    @app.route('/manually_connect', methods=['POST'])
-    def manually_connect_p():
-        db_name = request.form['db_name']
-        user = request.form['user']
-        password = request.form['password']
-        manually_connect(db_name, user, password)
 
 
     @app.route('/', methods=['GET'])
@@ -72,7 +94,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/logout', methods=['GET'])
+    @app.route('/logout/', methods=['GET'])
     def logout_():
         try:
             cursor.execute("DROP TABLE Logined_users CASCADE")
@@ -88,7 +110,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/register', methods=["POST"])
+    @app.route('/register/', methods=["POST"])
     def registr_add():
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
@@ -135,23 +157,23 @@ try:
                     conn.commit()
                     session['user_name'] = name
                     conn.commit()
-                    return redirect("http://127.0.0.1:5000/indexing_main")
+                    return redirect("http://127.0.0.1:5000/indexing_main/")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/registration', methods=['GET'])
+    @app.route('/registration/', methods=['GET'])
     def get_link_reg():
         return render_template('register.html')
 
 
-    @app.route('/log', methods=['GET'])
+    @app.route('/log/', methods=['GET'])
     def get_link_log():
         return render_template('login.html')
 
 
-    @app.route('/login', methods=["POST"])
+    @app.route('/login/', methods=["POST"])
     def login():
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
@@ -207,7 +229,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/accounts/<int:id_us>', methods=["GET"])
+    @app.route('/accounts/<int:id_us>/', methods=["GET"])
     def get_all_tasks(id_us):
         try:
             cursor.execute("SELECT * FROM people WHERE id = %s", (id_us,))
@@ -245,7 +267,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/create_account/<int:id_us>', methods=["POST"])
+    @app.route('/create_account/<int:id_us>/', methods=["POST"])
     def create_acc(id_us):
         try:
             acc_num = request.form['acc_num']
@@ -278,7 +300,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/dolo/<int:id_us>', methods=["POST"])
+    @app.route('/dolo/<int:id_us>/', methods=["POST"])
     def delete_acc(id_us):
         try:
             user_name = session.get('user_name')
@@ -312,7 +334,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/accounts_fill/<int:id_us>', methods=['POST'])
+    @app.route('/accounts_fill/<int:id_us>/', methods=['POST'])
     def fill_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -348,7 +370,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/accounts_withdraw/<int:id_us>', methods=['POST'])
+    @app.route('/accounts_withdraw/<int:id_us>/', methods=['POST'])
     def withdraw_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -384,7 +406,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/accounts_transfer/<int:id_us>', methods=['POST'])
+    @app.route('/accounts_transfer/<int:id_us>/', methods=['POST'])
     def transfer_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -421,7 +443,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/indexing_main', methods=['GET'])
+    @app.route('/indexing_main/', methods=['GET'])
     def create_to():
         try:
             user_name = session.get('user_name')
@@ -450,7 +472,7 @@ try:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/delete_account/<string:acc_num>', methods=['GET'])
+    @app.route('/delete_account/<string:acc_num>/', methods=['GET'])
     def delete_account(acc_num):
         try:
             user_name = session.get('user_name')

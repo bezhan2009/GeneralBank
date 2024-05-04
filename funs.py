@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, url_for, request, render_template, redirect, session
 import psycopg2
+from connect_self import redirect_to_connect, manually_connect
+
 
 app = Flask(__name__)
 app.secret_key = 'bezhan200910203040'
@@ -11,13 +13,17 @@ password = "bezhan2009"
 port = "5432"
 host = "127.0.0.1"
 
-conn = psycopg2.connect(
-    dbname=db_name,
-    user=user,
-    password=password,
-    host=host,
-    port=port
-)
+try:
+    conn = psycopg2.connect(
+        dbname=db_name,
+        user=user,
+        password=password,
+        host=host,
+        port=port
+    )
+except psycopg2.Error as e:
+    print(e)
+    redirect_to_connect()
 
 cursor = conn.cursor()
 cursor.execute(
@@ -50,30 +56,6 @@ elif not view_for_bugs:
 elif not view_for_bugs_2:
     cursor.execute("INSERT INTO Accounts_users(user_id, account_number) VALUES (%s, %s)", (1, '9847293'))
     conn.commit()
-
-
-def manually_connect(_db_name, _user, _password):
-    if not _db_name:
-        _db_name = "postgres"
-    elif not _user:
-        _user = "postgres"
-    elif not _user and not _db_name:
-        _user = "postgres"
-        _db_name = "postgres"
-
-    db_name = _db_name
-    user = _user
-    password = _password
-    port = "5432"
-    host = "127.0.0.1"
-
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
 
 
 def get_err(err):
