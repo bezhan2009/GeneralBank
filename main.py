@@ -2,25 +2,54 @@
 try:
 
     from flask import Flask, jsonify, url_for, request, render_template, redirect, session
-    from connect import engine
     from funs import *
+    from connect_self import manually_connect, redirect_to_connect, redirect_to_index
 
     app = Flask(__name__)
 
     app.secret_key = 'bezhan200910203040'
+
+    @app.route('/manually_connect/', methods=['POST'])
+    def manually_connect_p(redirect_to_index_=True):
+        db_name = request.form['db_name']
+        user = request.form['user']
+        password = request.form['password']
+        get_item_for_connection(db_name, user, password)
+        """
+            conn = manually_connect(db_name, user, password)
+            if conn and redirect_to_index_:
+                redirect_to_index()
+                return conn
+            elif conn and not redirect_to_index_:
+                return conn
+            else:
+                return redirect_to_connect()
+        """
+
+    def get_item_for_connection(db_name, user, password):
+        return db_name, user, password
+    
+
+
 
     db_name = "postgres"
     user = "postgres"
     password = "bezhan2009"
     port = "5432"
     host = "127.0.0.1"
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+    except psycopg2.Error as e:
+        print(e)
+        redirect_to_connect()
+
+
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
 
@@ -29,14 +58,6 @@ try:
     # conn.commit()
     # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
     # conn.commit()
-
-
-    @app.route('/manually_connect/', methods=['POST'])
-    def manually_connect_p():
-        db_name = request.form['db_name']
-        user = request.form['user']
-        password = request.form['password']
-        manually_connect(db_name, user, password)
 
 
     @app.route('/', methods=['GET'])
