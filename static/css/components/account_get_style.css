@@ -1,0 +1,88 @@
+        html, body{
+            background: transparent;
+            margin: 40px;
+            padding: 10px;
+            color: #f9f9f9;
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .3);
+        }
+
+        tr{
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .1);
+            color: #f1f1f1;
+        }
+
+        tr:nth-child(even) {
+            overflow: hidden;
+            color: #f1f1f1;
+            background-color: rgba(255, 255, 255, .2);
+        }
+
+        @keyframes gradient_reg {
+          0% {
+            background-position: 60% 20%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 60% 20%;
+          }
+        }
+
+        .color_gr{
+            overflow: hidden;background: linear-gradient(310deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4)); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .2);
+            background-size: 200%  100%;
+            animation: gradient_reg 4s ease infinite;
+        }
+
+        button {
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0);
+            position: relative;
+            border: none;
+            display: block;
+            border-radius: 5px;
+            width: auto;
+            transition: 0.2s;
+            padding: 10px;
+            overflow: hidden;
+            font-family: sans-serif;
+            cursor: pointer;
+            outline: none;
+        }
+
+        button:hover{
+            box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, .1);
+        }
+
+        button:active{
+            box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, .2);
+        }
+
+        button:focus{
+            box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, .2);
+        }

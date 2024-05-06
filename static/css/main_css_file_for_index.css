@@ -1,63 +1,63 @@
-html, body{
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-}
+        html, body{
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
 
-@keyframes gradient {
-  0% {
-    background-position: 60% 20%;
-  }
+        @keyframes gradient {
+          0% {
+            background-position: 0% 100%;
+          }
 
-  50% {
-    background-position: 80% 40%;
-  }
-  100% {
-    background-position: 60% 20%;
-  }
-}
-       @keyframes gradient_reg {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 20%;
-  }
-}
-form {
-    max-width: 300px;
-    margin: 120px auto;
-    padding: 20px;
-    position: relative;
-    background: linear-gradient(to right, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4));
-    background-size: 200% 100%;
-    animation: gradient_reg 4s ease infinite;
-    border-radius: 5px;
-    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
-}
+          50% {
+            background-position: 100% 0%;
+          }
+          100% {
+            background-position: 0% 100%;
+          }
+        }
+               @keyframes gradient_reg {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 20%;
+          }
+        }
 
-form label {
-    display: block;
-    margin-bottom: 5px;
-    color: #f1f1f1;
-}
+        form {
+            max-width: 300px;
+            margin: 120px auto;
+            padding: 20px;
+            position: relative;
+            background: linear-gradient(to right, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4));
+            background-size: 200% 100%;
+            animation: gradient_reg 4s ease infinite;
+            border-radius: 5px;
+            box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+        }
 
-input{
-    width: 92%;
-    background: rgba(255, 255, 255, .1);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    outline: none;
-    color: #f1f1f1;
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #f1f1f1;
+        }
 
-    border-radius: 3px;
+        input{
+            width: 92%;
+            background: rgba(255, 255, 255, .1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            outline: none;
+            color: #f1f1f1;
+            border-radius: 3px;
+        }
 
-}
-        button{
+        button {
             text-decoration: none;
             color: #fff;
             font-size: 16px;
@@ -75,7 +75,7 @@ input{
         }
 
         button:hover{
-    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, .1);
         }
 
@@ -90,18 +90,22 @@ input{
             transform: scaleX(0);
             transition: 0.3s;
         }
+
         button:hover::before{
             transform: scaleX(1);
         }
+
         button:active{
-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, .2);
         }
+
         button:focus{
-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, .2);
         }
-        a{
+
+        a {
             text-decoration: none;
             color: #fff;
             font-size: 16px;
@@ -147,19 +151,20 @@ box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
           height: 100%;
             top:0;
             left:0;
-          background: linear-gradient(310deg, forestgreen, #007bff);
+                    background: linear-gradient(45deg, #222, #444);
+
           background-size: 200% 100%;
-          animation: gradient 4s linear infinite;
+          animation: gradient 4s infinite;
         }
 
          @keyframes fade_out {
-      0% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
+              0% {
+                opacity: 1;
+              }
+              100% {
+                opacity: 0;
+              }
+            }
 
          input::placeholder{
             color: #f9f9f9;
@@ -201,4 +206,9 @@ box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
             position: absolute;
             opacity: 0;
             top: -100%
+        }
+
+
+        button {
+            outline: none;
         }

@@ -130,7 +130,7 @@ box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
           height: 100%;
             top:0;
             left:0;
-          background: linear-gradient(45deg, #ff0000, #0000ff);
+          background: linear-gradient(45deg, #222, #444);
           background-size: 200% 100%;
           animation: gradient 4s ease infinite;
         }
@@ -184,4 +184,13 @@ box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
             position: absolute;
             opacity: 0;
             top: -100%
+        }
+
+
+        button {
+            outline: none;
+        }
+
+        input {
+            outline: none;
         }

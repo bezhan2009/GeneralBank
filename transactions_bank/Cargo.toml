@@ -1,0 +1,17 @@
+[package]
+name = "transactions_bank"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rusqlite = "0.27"
+libc = "0.2"
+
+[[bin]]
+name = "transactions_bank_bin"
+path = "src/main.rs"
+
+[lib]
+name = "transactions_bank"  # Удалено "_lib"
+crate-type = ["cdylib"]
+path = "src/lib.rs"

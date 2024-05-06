@@ -1,12 +1,44 @@
 try:
 
-    from flask import Flask, jsonify, url_for, request, render_template, redirect, session
-
+    from flask import (Flask,
+                       jsonify,
+                       url_for,
+                       request,
+                       render_template,
+                       redirect,
+                       session
+                       )
     from funs import *
+    from utils import (manually_connect,
+                       redirect_to_connect,
+                       redirect_to_index
+                       )
 
     app = Flask(__name__)
 
     app.secret_key = 'bezhan200910203040'
+
+    @app.route('/manually_connect/', methods=['POST'])
+    def manually_connect_p(redirect_to_index_=True):
+        db_name = request.form['db_name']
+        user = request.form['user']
+        password = request.form['password']
+        get_item_for_connection(db_name, user, password)
+        """
+            conn = manually_connect(db_name, user, password)
+            if conn and redirect_to_index_:
+                redirect_to_index()
+                return conn
+            elif conn and not redirect_to_index_:
+                return conn
+            else:
+                return redirect_to_connect()
+        """
+
+    def get_item_for_connection(db_name, user, password):
+        return db_name, user, password
+    
+
 
 
     db_name = "postgres"
@@ -14,16 +46,21 @@ try:
     password = "bezhan2009"
     port = "5432"
     host = "127.0.0.1"
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+    except psycopg2.Error as e:
+        print(e)
+        redirect_to_connect()
+
+
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
-
 
 
     # cursor.execute("DROP TABLE Accounts_users CASCADE")
@@ -31,14 +68,6 @@ try:
     # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
     # conn.commit()
 
-
-
-    @app.route('/manually_connect', methods=['POST'])
-    def manually_connect_p():
-        db_name = request.form['db_name']
-        user = request.form['user']
-        password = request.form['password']
-        manually_connect(db_name, user, password)
 
     @app.route('/', methods=['GET'])
     def index():
@@ -56,31 +85,41 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
 
             else:
-                return render_template("register.html")
+                info = {
+                    'is_success': True,
+                    'is_login': False,
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/logout', methods=['GET'])
+    @app.route('/logout/', methods=['GET'])
     def logout_():
         try:
             cursor.execute("DROP TABLE Logined_users CASCADE")
-            cursor.execute("CREATE TABLE IF NOT EXISTS Loogined_users(id serial, login_user_p VARCHAR(40))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             conn.commit()
-            return render_template('login.html')
+            info = {
+                'is_success': True,
+                'is_logout': True
+            }
+            return render_template('login.html', info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/register', methods=["POST"])
+    @app.route('/register/', methods=["POST"])
     def registr_add():
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
@@ -97,7 +136,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
@@ -107,34 +148,41 @@ try:
                 last_name = request.form['last_name']
                 password = request.form['password']
                 age = request.form['age']
-                cursor.execute("SELECT user_name FROM people WHERE user_name = %s", (name, ))
+                cursor.execute("SELECT user_name FROM people WHERE user_name = %s", (name,))
                 names = cursor.fetchall()
 
                 if names:
-                    return render_template("register_wrong.html")
+                    info = {
+                        'is_success': False,
+                        'is_login': False,
+                        'is_logout': False
+                    }
+                    return render_template("register.html", info=info)
 
                 else:
-                    cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (name, ))
+                    cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (name,))
                     cursor.execute("INSERT INTO people(user_name, last_name, password, age) VALUES (%s, %s, %s, %s)",
                                    (name, last_name, password, age))
                     conn.commit()
                     session['user_name'] = name
                     conn.commit()
-                    return redirect("http://127.0.0.1:5000/indexing_main")
+                    return redirect("http://127.0.0.1:5000/indexing_main/")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
-    @app.route('/registration', methods=['GET'])
+
+    @app.route('/registration/', methods=['GET'])
     def get_link_reg():
         return render_template('register.html')
 
-    @app.route('/log', methods=['GET'])
+
+    @app.route('/log/', methods=['GET'])
     def get_link_log():
         return render_template('login.html')
 
 
-    @app.route('/login', methods=["POST"])
+    @app.route('/login/', methods=["POST"])
     def login():
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
@@ -150,7 +198,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True,
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
@@ -159,7 +209,7 @@ try:
                 user_name = request.form['name']
                 password = request.form['password']
                 y = login_user(user_name, password)
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name, ))
+                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 conn.commit()
                 if user_info:
@@ -167,7 +217,9 @@ try:
                         'user_name': user_info[0],
                         'last_name': user_info[1],
                         'password': user_info[2],
-                        'age': user_info[3]
+                        'age': user_info[3],
+                        'is_success': True,
+                        'is_login': True
                     }
                     conn.commit()
                     if y:
@@ -175,13 +227,18 @@ try:
                         cursor.execute("INSERT INTO Logined_users(login_user_p) VALUES (%s)", (user_name,))
                         conn.commit()
                         return render_template("index.html", user_info=user_info_dict)
-                return render_template("login_wrong.html")
+                info = {
+                    'is_success': False,
+                    'is_login': False,
+                    'is_logout': False
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/accounts/<int:id_us>', methods=["GET"])
+    @app.route('/accounts/<int:id_us>/', methods=["GET"])
     def get_all_tasks(id_us):
         try:
             cursor.execute("SELECT * FROM people WHERE id = %s", (id_us,))
@@ -191,9 +248,12 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'", (user_info_dict['user_name'],))
+                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
+                               (user_info_dict['user_name'],))
                 rows = cursor.fetchall()
                 if rows:
                     serialized_accounts = []
@@ -205,7 +265,8 @@ try:
                             'balance': row[4]
                         }
                         serialized_accounts.append(account)
-                    return render_template("accounts_op.html", user_info=user_info_dict, account_info=serialized_accounts)
+                    return render_template("accounts_op.html", user_info=user_info_dict,
+                                           account_info=serialized_accounts)
                 else:
                     return render_template("no_accounts.html")
             else:
@@ -214,7 +275,8 @@ try:
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
-    @app.route('/create_account/<int:id_us>', methods=["POST"])
+
+    @app.route('/create_account/<int:id_us>/', methods=["POST"])
     def create_acc(id_us):
         try:
             acc_num = request.form['acc_num']
@@ -226,22 +288,28 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                if create_an_account(id_us, acc_num):
-                    return render_template('correct.html', user_info=user_info_dict)
+                if create_an_account(id_us, acc_num, user_info_dict['last_name']):
+                    return render_template('index.html', user_info=user_info_dict)
                 else:
-                    return render_template("successfully.html")
+                    user_info_dict['is_success'] = False  # Устанавливаем флаг is_success в False
+                    return render_template("index.html", user_info=user_info_dict)
             else:
-                return render_template("successfully.html")
+                info = {
+                    'is_success': True,
+                    'is_login': False,
+                    'is_logout': False
+                }
+                return render_template("login.html", info=info)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-
-
-    @app.route('/dolo/<int:id_us>', methods=["POST"])
+    @app.route('/dolo/<int:id_us>/', methods=["POST"])
     def delete_acc(id_us):
         try:
             user_name = session.get('user_name')
@@ -253,9 +321,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -264,13 +334,16 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
-    @app.route('/accounts_fill/<int:id_us>', methods=['POST'])
+
+    @app.route('/accounts_fill/<int:id_us>/', methods=['POST'])
     def fill_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -283,9 +356,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -294,14 +369,17 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
-    @app.route('/accounts_withdraw/<int:id_us>', methods=['POST'])
+
+    @app.route('/accounts_withdraw/<int:id_us>/', methods=['POST'])
     def withdraw_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -314,9 +392,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -325,14 +405,17 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
-    @app.route('/accounts_transfer/<int:id_us>', methods=['POST'])
+
+    @app.route('/accounts_transfer/<int:id_us>/', methods=['POST'])
     def transfer_money_(id_us):
         try:
             user_name = session.get('user_name')
@@ -346,9 +429,11 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
-                return render_template('correct.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
             else:
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
@@ -357,15 +442,17 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('successfully.html', user_info=user_info_dict)
+                return render_template('index.html', user_info=user_info_dict)
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
 
 
-    @app.route('/indexing_main', methods=['GET'])
+    @app.route('/indexing_main/', methods=['GET'])
     def create_to():
         try:
             user_name = session.get('user_name')
@@ -377,19 +464,59 @@ try:
                     'user_name': user_info[0],
                     'last_name': user_info[1],
                     'password': user_info[2],
-                    'age': user_info[3]
+                    'age': user_info[3],
+                    'is_success': True,
+                    'is_login': False
                 }
                 return render_template('index.html', user_info=user_info_dict)
             else:
-                cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
-                user_info = cursor.fetchone()
-                user_info_dict = {
-                    'user_name': user_info[0],
-                    'last_name': user_info[1],
-                    'password': user_info[2],
-                    'age': user_info[3]
+                info = {
+                    'is_success': False,
+                    'is_login': False
                 }
-                return render_template('register.html', user_info=user_info_dict)
+
+                return render_template('login.html', info=info)
+
+        except BaseException as e:
+            return render_template("error_p.html", reall_error=e)
+
+
+    @app.route('/delete_account/<string:acc_num>/', methods=['GET'])
+    def delete_account(acc_num):
+        try:
+            user_name = session.get('user_name')
+            cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
+            user_info = cursor.fetchone()
+            user_info_dict = {
+                'user_name': user_info[0],
+                'last_name': user_info[1],
+                'password': user_info[2],
+                'age': user_info[3],
+                'is_success': True,
+                'is_login': False
+            }
+            if delete_an_account_from_user_accounts(user_info[0],
+                                                    acc_num):  # Обращаемся к элементам кортежа по индексам
+                cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
+                               (user_info_dict['user_name'],))
+                rows = cursor.fetchall()
+                if rows:
+                    serialized_accounts = []
+                    for row in rows:
+                        account = {
+                            'user_id': row[1],
+                            'user_name': row[2],
+                            'acc_num': row[3],
+                            'balance': row[4]
+                        }
+                        serialized_accounts.append(account)
+                    return render_template("accounts_op.html", user_info=user_info_dict,
+                                           account_info=serialized_accounts)
+
+                else:
+                    return render_template("no_accounts.html")
+            else:
+                return render_template("error_p.html", reall_error="Account or User does not exist")
 
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
@@ -400,4 +527,3 @@ try:
 
 except BaseException as e:
     get_err(e)
-
