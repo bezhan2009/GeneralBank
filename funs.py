@@ -2,9 +2,7 @@ from flask import (Flask,
                    render_template
                    )
 import psycopg2
-from utils import (redirect_to_connect,
-                   manually_connect
-                   )
+from utils import redirect_to_connect
 
 
 app = Flask(__name__)
