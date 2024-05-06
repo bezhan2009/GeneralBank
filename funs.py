@@ -1,6 +1,10 @@
-from flask import Flask, jsonify, url_for, request, render_template, redirect, session
+from flask import (Flask,
+                   render_template
+                   )
 import psycopg2
-from connect_self import redirect_to_connect, manually_connect
+from utils import (redirect_to_connect,
+                   manually_connect
+                   )
 
 
 app = Flask(__name__)

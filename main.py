@@ -1,9 +1,19 @@
 #upgrade
 try:
 
-    from flask import Flask, jsonify, url_for, request, render_template, redirect, session
+    from flask import (Flask,
+                       jsonify,
+                       url_for,
+                       request,
+                       render_template,
+                       redirect,
+                       session
+                       )
     from funs import *
-    from connect_self import manually_connect, redirect_to_connect, redirect_to_index
+    from utils import (manually_connect,
+                       redirect_to_connect,
+                       redirect_to_index
+                       )
 
     app = Flask(__name__)
 
