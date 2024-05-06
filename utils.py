@@ -1,4 +1,3 @@
-
 from flask import (Flask,
                    render_template,
                    redirect
@@ -8,6 +7,7 @@ import psycopg2
 app = Flask(__name__)
 
 app.secret_key = 'bezhan200910203040'
+
 
 def manually_connect(_db_name, _user, _password):
     if not _db_name:
