@@ -31,7 +31,7 @@
         margin: 120px auto;
         padding: 20px;
         position: relative;
-        background: linear-gradient(to right, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4));
+        background: linear-gradient(310deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .4)) fixed;
         background-size: 200% 100%;
         animation: gradient_reg 4s ease infinite;
         border-radius: 5px;
