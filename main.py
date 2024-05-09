@@ -72,7 +72,7 @@ try:
     @app.route('/', methods=['GET'])
     def index():
         try:
-            cursor.execute("CREATE TABLE IF NOT EXISTS Loogined_users(id serial, login_user_p VARCHAR(40))")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             cursor.execute("SELECT * FROM Logined_users")
             view_logined = cursor.fetchone()
             if view_logined:
