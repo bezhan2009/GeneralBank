@@ -14,54 +14,73 @@ try:
                        redirect_to_index
                        )
 
-    app = Flask(__name__)
+    from flask import Flask, request, render_template, redirect, session
+    import psycopg2
+    from connect_utils import check_conn
 
+    app = Flask(__name__)
     app.secret_key = 'bezhan200910203040'
 
+    conn = None
+
+    def get_db_connection(db_name="postgres", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
+        """Устанавливает соединение с базой данных."""
+        global conn
+        try:
+            if db_name == "postgrs":
+                db_name = "postgres"
+            print(db_name)
+            print(user)
+            print(password)
+            print(host)
+            print(port)
+            conn = psycopg2.connect(
+                dbname=db_name,
+                user=user,
+                password=password,
+                host=host,
+                port=port
+            )
+            return conn
+        except (Exception, psycopg2.DatabaseError) as e:
+            print(e)
+            redirect_to_connect()
+            return None
+        except psycopg2.Error as e:
+            print(e)
+            redirect_to_connect()
+            return None
+
+
+    # conn = get_db_connection()  # Установка соединения при запуске приложения
+    # if conn is None:
+    #    redirect_to_connect()
+
+
     @app.route('/manually_connect/', methods=['POST'])
-    def manually_connect_p(redirect_to_index_=True):
+    def manually_connect_p():
+        """Обработчик для ручного подключения к базе данных."""
+        global conn
         db_name = request.form['db_name']
         user = request.form['user']
         password = request.form['password']
-        get_item_for_connection(db_name, user, password)
-        """
-            conn = manually_connect(db_name, user, password)
-            if conn and redirect_to_index_:
-                redirect_to_index()
-                return conn
-            elif conn and not redirect_to_index_:
-                return conn
-            else:
-                return redirect_to_connect()
-        """
-
-    def get_item_for_connection(db_name, user, password):
-        return db_name, user, password
-    
+        # Передаем данные подключения прямо в функцию get_db_connection
+        conn_ = get_db_connection(db_name=db_name, user=user, password=password,  host="127.0.0.1", port="5432")
+        # Проверяем, удалось ли установить соединение
+        if conn_ is None:
+            return redirect_to_connect()
+        else:
+            # Обновляем глобальную переменную conn
+            conn = conn_
+            return redirect_to_index()
 
 
-
-    db_name = "postgres"
-    user = "postgres"
-    password = "bezhan2009"
-    port = "5432"
-    host = "127.0.0.1"
     try:
-        conn = psycopg2.connect(
-            dbname=db_name,
-            user=user,
-            password=password,
-            host=host,
-            port=port
-        )
-    except psycopg2.Error as e:
+        cursor = conn.cursor()
+
+        cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
+    except Exception as e:
         print(e)
-        redirect_to_connect()
-
-
-    cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
-
 
     # cursor.execute("DROP TABLE Accounts_users CASCADE")
     # conn.commit()
@@ -71,6 +90,11 @@ try:
 
     @app.route('/', methods=['GET'])
     def index():
+        global conn
+        if conn is None:
+            conn = get_db_connection()
+            if conn is None:
+                return redirect_to_connect()
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             cursor.execute("SELECT * FROM Logined_users")
@@ -526,4 +550,5 @@ try:
         app.run(debug=True)
 
 except BaseException as e:
+    from err_utils import get_err
     get_err(e)
