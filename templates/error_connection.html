@@ -21,15 +21,15 @@
     <form action="http://127.0.0.1:5000/manually_connect/" method="post" style="margin: 10px auto">
         <div>
             <label for="db_name" id="complete_this">Название вашей базы данных:</label>
-            <input type="text" id="transfer_acc_num" name="db_name" placeholder="postgres" maxlength="35">
+            <input type="text" id="db_name" name="db_name" placeholder="postgres" maxlength="35">
         </div>
         <div>
             <label for="user">Имя подключение (user):</label>
-            <input type="text" id="transfer_acc_num_2" name="user" placeholder="postgres">
+            <input type="text" id="user" name="user" placeholder="postgres">
         </div>
         <div>
-            <label for="password">Пароль для подключение к базе данных::</label>
-            <input type="password" id="transfer_money" name="password" max="10000">
+            <label for="password">Пароль для подключения к базе данных::</label>
+            <input type="password" id="password" name="password" max="10000">
         </div>
         <button type="submit">Совершить переподключения</button>
     </form>
