@@ -7,53 +7,109 @@ from colorama import init, Fore
 
 init()
 
-print(Fore.GREEN)
-good_question = int(input("Настроить подключение к базе данных(автоматически = 0 или в ручную = 1):"))
 
-if good_question >= 1:
-    db_name = input("Введите название вашей базы данных(по умолчанию = postgres):")
-    if len(db_name) <= 0:
-        print("Вставляем имя базы данных по умолчанию...")
-        db_name = "postgres"
+def manual_connection(good_question):
+    try:
+        print(Fore.GREEN)
+        if good_question >= 1:
+            print(Fore.YELLOW)
+            print(
+                "Мы не смогли подключится к Базе Данных Автоматически поэтому вам придется самому написать подключение к Базе Данных(db_name, user, password, port, host)")
+            print(Fore.GREEN)
+            db_name = input("Введите название вашей базы данных(по умолчанию = postgres):")
+            if len(db_name) <= 0:
+                print("Вставляем имя базы данных по умолчанию...")
+                db_name = "postgres"
 
-    user = input("Введите имя подключение (user) (по умолчанию = postgres):")
-    if len(user) <= 0:
-        print("Вставляем имя подключение по умолчанию...")
-        user = "postgres"
+            user = input("Введите имя подключение (user) (по умолчанию = postgres):")
+            if len(user) <= 0:
+                print("Вставляем имя подключение по умолчанию...")
+                user = "postgres"
 
-    password = input("Введите пароль для подключение к базе данных:")
+                password = input("Введите пароль для подключение к базе данных:")
 
-    port = input("Введите порт(по умолчанию = 5432):")
-    if len(port) <= 0:
-        print("Вставляем порт по умолчанию...")
-        port = 5432
+            port = input("Введите порт(по умолчанию = 5432):")
+            if len(port) <= 0:
+                print("Вставляем порт по умолчанию...")
+                port = 5432
+            else:
+                port = int(port)
+
+            host = input("Введите host подключение(по умолчанию = 127.0.0.1)")
+            if len(host) <= 0:
+                print("Вставляем host подключение по умолчанию...")
+                host = "127.0.0.1"
+
+
+        elif good_question <= 0:
+            print("Подключаемся к Базе Данных...")
+            db_name = "postgres"
+            user = "postgres"
+            password = "bezhan2009"
+            port = "5432"
+            host = "127.0.0.1"
+
+        data = {
+            'db_name': db_name,
+            'user': user,
+            'password': password,
+            'port': port,
+            'host': host,
+            'error': False,
+            'message': "Подключение прошло успешно!!!"
+        }
+
+        return data
+    except Exception as e:
+        data = {
+            'db_name': None,
+            'user': None,
+            'password': None,
+            'port': None,
+            'host': None,
+            'error': True,
+            'message': e,
+        }
+
+        return data
+
+
+def connection_to_db(good_question):
+    data = manual_connection(good_question)
+    if not data.get('error'):
+        conn = psycopg2.connect(
+            dbname=data.get('db_name'),
+            user=data.get('user'),
+            password=data.get('password'),
+            host=data.get('host'),
+            port=data.get('port')
+        )
+        message = data.get('message')
+
     else:
-        port = int(port)
+        message = data.get('message')
+        conn = None
 
-    host = input("Введите host подключение(по умолчанию = 127.0.0.1)")
-    if len(host) <= 0:
-        print("Вставляем host подключение по умолчанию...")
-        host = "127.0.0.1"
+    data_info = {
+        'conn': conn,
+        'message': message
+    }
 
+    return data_info
 
-elif good_question <= 0:
-    db_name = "postgres"
-    user = "postgres"
-    password = "bezhan2009"
-    port = "5432"
-    host = "127.0.0.1"
 
 try:
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
-    print("Подключение прошло успешно!!!")
+    data_info = connection_to_db(0)
+    message = data_info.get('message')
+except Exception as e:
+    data_info = connection_to_db(1)
+    message = data_info.get('message')
 except psycopg2.Error as e:
-    print("Произошла ошибка при подключении к базе данных:", e)
+    data_info = connection_to_db(1)
+    message = data_info.get('message')
+
+print(message)
+conn = data_info.get('conn')
 
 try:
     # Инициализация библиотеки Colorama
