@@ -23,7 +23,8 @@ try:
 
     conn = None
 
-    def get_db_connection(db_name="postgres", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
+
+    def get_db_connection(db_name="postges", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
         """Устанавливает соединение с базой данных."""
         global conn
         try:
@@ -34,14 +35,15 @@ try:
             print(password)
             print(host)
             print(port)
-            conn = psycopg2.connect(
+            conn_ = psycopg2.connect(
                 dbname=db_name,
                 user=user,
                 password=password,
                 host=host,
                 port=port
             )
-            return conn
+            conn = conn_
+            return conn_
         except (Exception, psycopg2.DatabaseError) as e:
             print(e)
             redirect_to_connect()
@@ -56,7 +58,6 @@ try:
     # if conn is None:
     #    redirect_to_connect()
 
-
     @app.route('/manually_connect/', methods=['POST'])
     def manually_connect_p():
         """Обработчик для ручного подключения к базе данных."""
@@ -65,10 +66,12 @@ try:
         user = request.form['user']
         password = request.form['password']
         # Передаем данные подключения прямо в функцию get_db_connection
-        conn_ = get_db_connection(db_name=db_name, user=user, password=password,  host="127.0.0.1", port="5432")
+        conn_ = get_db_connection(db_name=db_name, user=user, password=password, host="127.0.0.1", port="5432")
+        session['conn'] = conn_
+
         # Проверяем, удалось ли установить соединение
         if conn_ is None:
-            return redirect_to_connect()
+            return False
         else:
             # Обновляем глобальную переменную conn
             conn = conn_
@@ -82,20 +85,27 @@ try:
     except Exception as e:
         print(e)
 
+
     # cursor.execute("DROP TABLE Accounts_users CASCADE")
     # conn.commit()
     # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
     # conn.commit()
 
-
     @app.route('/', methods=['GET'])
     def index():
         global conn
+        is_m_c = False
         if conn is None:
             conn = get_db_connection()
             if conn is None:
+                is_m_c = True
                 return redirect_to_connect()
         try:
+            if not is_m_c:
+                cursor = conn.cursor()
+            else:
+                cursor = session['conn']
+                cursor = cursor.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             cursor.execute("SELECT * FROM Logined_users")
             view_logined = cursor.fetchone()
@@ -551,4 +561,5 @@ try:
 
 except BaseException as e:
     from err_utils import get_err
+
     get_err(e)
