@@ -1,5 +1,4 @@
 try:
-
     from flask import (Flask,
                        jsonify,
                        url_for,
@@ -17,24 +16,39 @@ try:
     from flask import Flask, request, render_template, redirect, session
     import psycopg2
     from connect_utils import check_conn
+    from hiberfil import first_open
 
     app = Flask(__name__)
     app.secret_key = 'bezhan200910203040'
 
     conn = None
+    cursor = None  # Объявляем глобальную переменную cursor
+    do_connect = False
+
+    try:
+        is_connected = True
+        # Создаем курсор для работы с базой данных
+        conn = psycopg2.connect(
+            dbname="postgres",
+            user="postgres",
+            password="bezhan2009",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
+        conn.commit()
+    except Exception as e:
+        is_connected = False
 
 
-    def get_db_connection(db_name="postges", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
+    def get_db_connection(db_name="postgrs", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
         """Устанавливает соединение с базой данных."""
         global conn
+        global cursor
         try:
             if db_name == "postgrs":
                 db_name = "postgres"
-            print(db_name)
-            print(user)
-            print(password)
-            print(host)
-            print(port)
             conn_ = psycopg2.connect(
                 dbname=db_name,
                 user=user,
@@ -43,7 +57,8 @@ try:
                 port=port
             )
             conn = conn_
-            return conn_
+            cursor = conn.cursor()
+            return conn
         except (Exception, psycopg2.DatabaseError) as e:
             print(e)
             redirect_to_connect()
@@ -54,58 +69,42 @@ try:
             return None
 
 
-    # conn = get_db_connection()  # Установка соединения при запуске приложения
-    # if conn is None:
-    #    redirect_to_connect()
-
     @app.route('/manually_connect/', methods=['POST'])
     def manually_connect_p():
         """Обработчик для ручного подключения к базе данных."""
         global conn
+        global cursor
+        global do_connect
         db_name = request.form['db_name']
         user = request.form['user']
         password = request.form['password']
-        # Передаем данные подключения прямо в функцию get_db_connection
         conn_ = get_db_connection(db_name=db_name, user=user, password=password, host="127.0.0.1", port="5432")
-        session['conn'] = conn_
 
         # Проверяем, удалось ли установить соединение
         if conn_ is None:
-            return False
+            return redirect_to_connect()
         else:
-            # Обновляем глобальную переменную conn
+            # Обновляем глобальные переменные conn и cursor
             conn = conn_
+            cursor = conn.cursor()
+            do_connect = True
             return redirect_to_index()
 
+    def get_conn():
+        global conn
+        clone_conn = conn
+        return clone_conn
 
-    try:
+    if do_connect:
+        conn = get_conn()
         cursor = conn.cursor()
-
-        cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
-    except Exception as e:
-        print(e)
-
-
-    # cursor.execute("DROP TABLE Accounts_users CASCADE")
-    # conn.commit()
-    # cursor.execute("CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70) UNIQUE, balance  INT DEFAULT 10000, is_deleted bool DEFAULT false, FOREIGN KEY (user_id) REFERENCES people (id))")
-    # conn.commit()
 
     @app.route('/', methods=['GET'])
     def index():
-        global conn
-        is_m_c = False
-        if conn is None:
-            conn = get_db_connection()
-            if conn is None:
-                is_m_c = True
-                return redirect_to_connect()
+        if not is_connected:
+            return redirect_to_connect()
         try:
-            if not is_m_c:
-                cursor = conn.cursor()
-            else:
-                cursor = session['conn']
-                cursor = cursor.cursor()
+            first_open(conn)
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             cursor.execute("SELECT * FROM Logined_users")
             view_logined = cursor.fetchone()
@@ -125,17 +124,14 @@ try:
                     }
                     conn.commit()
                     return render_template("index.html", user_info=user_info_dict)
-
             else:
                 info = {
                     'is_success': True,
                     'is_login': False,
                 }
                 return render_template("login.html", info=info)
-
         except BaseException as e:
             return render_template("error_p.html", reall_error=e)
-
 
     @app.route('/logout/', methods=['GET'])
     def logout_():
@@ -242,7 +238,7 @@ try:
             else:
                 user_name = request.form['name']
                 password = request.form['password']
-                y = login_user(user_name, password)
+                y = login_user(conn, user_name, password)
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 conn.commit()
@@ -326,7 +322,7 @@ try:
                     'is_success': True,
                     'is_login': False
                 }
-                if create_an_account(id_us, acc_num, user_info_dict['last_name']):
+                if create_an_account(conn, id_us, acc_num, user_info_dict['last_name']):
                     return render_template('index.html', user_info=user_info_dict)
                 else:
                     user_info_dict['is_success'] = False  # Устанавливаем флаг is_success в False
@@ -348,7 +344,7 @@ try:
         try:
             user_name = session.get('user_name')
             acc_num = request.form['acc_num']
-            if delete_an_account(id_us, acc_num):
+            if delete_an_account(conn, id_us, acc_num):
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 user_info_dict = {
@@ -383,7 +379,7 @@ try:
             user_name = session.get('user_name')
             acc_num_fill = request.form['acc_num']
             amount = request.form['amount']
-            if fill_money(id_us, acc_num_fill, amount):
+            if fill_money(conn, id_us, acc_num_fill, amount):
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 user_info_dict = {
@@ -419,7 +415,7 @@ try:
             user_name = session.get('user_name')
             acc_num_fill = request.form['acc_num']
             amount = request.form['amount']
-            if withdraw_money(id_us, acc_num_fill, amount):
+            if withdraw_money(conn, id_us, acc_num_fill, amount):
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 user_info_dict = {
@@ -456,7 +452,7 @@ try:
             acc_num_fill_1 = request.form['acc_num_1']
             acc_num_fill_2 = request.form['acc_num_2']
             amount = request.form['amount']
-            if transfer_money(id_us, acc_num_fill_1, acc_num_fill_2, amount):
+            if transfer_money(conn, id_us, acc_num_fill_1, acc_num_fill_2, amount):
                 cursor.execute("SELECT * FROM people WHERE user_name = %s", (user_name,))
                 user_info = cursor.fetchone()
                 user_info_dict = {
@@ -529,7 +525,8 @@ try:
                 'is_success': True,
                 'is_login': False
             }
-            if delete_an_account_from_user_accounts(user_info[0],
+            if delete_an_account_from_user_accounts(conn,
+                                                    user_info[0],
                                                     acc_num):  # Обращаемся к элементам кортежа по индексам
                 cursor.execute("SELECT * FROM Accounts_users WHERE user_id = %s AND is_deleted = 'False'",
                                (user_info_dict['user_name'],))

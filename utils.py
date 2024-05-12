@@ -45,5 +45,10 @@ def redirect_to_connect():
 
 
 def redirect_to_index():
+    info = {
+        'is_success': True,
+        'is_logout': True
+    }
+
     with app.app_context():
-        return redirect("http://127.0.0.1:5000/", code=302)
+        return render_template("login.html", info=info)
