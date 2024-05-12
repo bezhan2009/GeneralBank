@@ -1,9 +1,6 @@
 from flask import (Flask,
                    render_template
                    )
-import psycopg2
-from utils import redirect_to_connect
-from main import conn
 
 app = Flask(__name__)
 app.secret_key = 'bezhan200910203040'
@@ -26,47 +23,14 @@ except psycopg2.Error as e:
     print(e)
     redirect_to_connect()
 '''
-try:
-    cursor = conn.cursor()
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS people(id SERIAL PRIMARY KEY,user_name VARCHAR(50) UNIQUE,last_name VARCHAR(50) NOT NULL,password VARCHAR(50) NOT NULL,age INT NOT NULL,UNIQUE (id))")
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS Accounts_users(id serial, user_id INT NOT NULL , user_name_id VARCHAR(40), account_number VARCHAR(70), balance  INT DEFAULT 10000, FOREIGN KEY (user_id) REFERENCES people (id));")
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS Transactions_users(id serial, user_id_1 INT NOT NULL, account_number_1 VARCHAR(70), account_number_2 VARCHAR(70), sum_transfer INT NOT NULL)")
-    cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
-    # cursor.execute("DROP TABLE IF EXISTS people CASCADE")
-    # cursor.execute("DROP TABLE IF EXISTS Logined_users CASCADE")
-    # cursor.execute("DROP TABLE IF EXISTS Transactions_users CASCADE")
-    # cursor.execute("DROP TABLE IF EXISTS Accounts_users CASCADE")
-    # conn.commit()
-    # cursor.execute("ALTER TABLE Accounts_users ADD is_deleted bool DEFAULT false")
-    conn.commit()
-    cursor.execute("SELECT * FROM Accounts_users")
-    view_for_bugs = cursor.fetchall()
-    cursor.execute("SELECT * FROM people")
-    view_for_bugs_2 = cursor.fetchall()
-    if not view_for_bugs and not view_for_bugs_2:
-        cursor.execute("INSERT INTO people(user_name, last_name, password, age) VALUES ('1', '1', '1', '1')")
-        cursor.execute("INSERT INTO Accounts_users(user_id, account_number) VALUES (%s, %s)", (1, '9847293'))
-        conn.commit()
 
-    elif not view_for_bugs:
-        cursor.execute("INSERT INTO Accounts_users(user_id, account_number) VALUES (%s, %s)", (1, '9847293'))
-        conn.commit()
-
-    elif not view_for_bugs_2:
-        cursor.execute("INSERT INTO Accounts_users(user_id, account_number) VALUES (%s, %s)", (1, '9847293'))
-        conn.commit()
-except Exception as e:
-    print(e)
 
 def get_err(err):
     with app.app_context():
         return render_template("error_p.html", reall_error=err)
 
 
-def login_user(login, password):
+def login_user(conn, login, password):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM people WHERE user_name = %s AND password = %s", (login, password))
     x = cursor.fetchone()
@@ -76,7 +40,7 @@ def login_user(login, password):
         return False
 
 
-def create_an_account(_id, acc_num, username):
+def create_an_account(conn, _id, acc_num, username):
     cursor = conn.cursor()
     try:
         cursor.execute('INSERT INTO Accounts_users  '
@@ -92,7 +56,7 @@ def create_an_account(_id, acc_num, username):
         return False  # Возвращаем False, если возникла ошибка
 
 
-def delete_an_account(_id, acc_id):
+def delete_an_account(conn, _id, acc_id):
     cursor = conn.cursor()
     cursor.execute(
         "SELECT account_number FROM Accounts_users WHERE user_id = %s AND id = %s AND is_deleted = 'False'",
@@ -107,7 +71,7 @@ def delete_an_account(_id, acc_id):
         return False
 
 
-def withdraw_money(_id, acc_num, amount):
+def withdraw_money(conn, _id, acc_num, amount):
     cursor = conn.cursor()
     cursor.execute(
         "SELECT account_number FROM Accounts_users WHERE user_id = %s AND account_number = %s AND is_deleted = 'False'",
@@ -131,7 +95,7 @@ def withdraw_money(_id, acc_num, amount):
         return False
 
 
-def fill_money(_id, acc_num, amount):
+def fill_money(conn, _id, acc_num, amount):
     cursor = conn.cursor()
     cursor.execute(
         "SELECT account_number FROM Accounts_users WHERE user_id = %s AND account_number = %s AND is_deleted = 'False'",
@@ -147,7 +111,7 @@ def fill_money(_id, acc_num, amount):
         return False
 
 
-def transfer_money(_id, acc_num_1, acc_num_2, amount):
+def transfer_money(conn, _id, acc_num_1, acc_num_2, amount):
     cursor = conn.cursor()
     cursor.execute(
         "SELECT account_number FROM Accounts_users WHERE user_id = %s AND account_number = %s AND is_deleted = 'False'",
@@ -177,12 +141,12 @@ def transfer_money(_id, acc_num_1, acc_num_2, amount):
             return True
 
         else:
-            return render_template('amount_error.html')
+            return False
     else:
         return False
 
 
-def delete_an_account_from_user_accounts(user_id, acc_num):
+def delete_an_account_from_user_accounts(conn, user_id, acc_num):
     cursor = conn.cursor()
     try:
         # Проверяем, существует ли счет пользователя
