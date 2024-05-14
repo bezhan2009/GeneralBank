@@ -42,7 +42,7 @@ try:
         is_connected = False
 
 
-    def get_db_connection(db_name="postgrs", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
+    def get_db_connection(db_name="postgres", user="postgres", password="bezhan2009", host="127.0.0.1", port="5432"):
         """Устанавливает соединение с базой данных."""
         global conn
         global cursor
