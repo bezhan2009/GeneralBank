@@ -8,3 +8,5 @@
 __pycache__/connect.cpython-312.pyc
 __pycache__/funs.cpython-312.pyc
 connect.py
+.idea
+__pycache__
