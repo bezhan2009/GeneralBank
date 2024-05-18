@@ -52,3 +52,4 @@ def redirect_to_index():
 
     with app.app_context():
         return render_template("login.html", info=info)
+
