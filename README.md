@@ -1,5 +1,5 @@
 
-# GeneralBank
+![Opera_Снимок_2024-07-28_231014_logo html-removebg-preview (1)](https://github.com/user-attachments/assets/08d75054-5c0e-4755-a689-e72c63abbc2c)
 
 GeneralBank - это веб-приложение для управления банковскими счетами, разработанное с использованием Python, Flask и PostgreSQL на серверной стороне, а также HTML, CSS и JavaScript на клиентской стороне.
 
