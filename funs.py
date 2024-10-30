@@ -5,25 +5,6 @@ from flask import (Flask,
 app = Flask(__name__)
 app.secret_key = 'bezhan200910203040'
 
-'''db_name = "postgres"
-user = "postgres"
-password = "bezhan2009"
-port = "5432"
-host = "127.0.0.1"
-
-try:
-    conn = psycopg2.connect(
-        dbname=db_name,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
-except psycopg2.Error as e:
-    print(e)
-    redirect_to_connect()
-'''
-
 
 def get_err(err):
     with app.app_context():
