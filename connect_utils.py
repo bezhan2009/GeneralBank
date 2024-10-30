@@ -1,11 +1,9 @@
-from flask import render_template
-
-
 def check_conn(conn):
     if conn is None:
         return False
     else:
         return True
+
 
 """
 def get_manually_connect():
@@ -18,5 +16,4 @@ def get_manually_connect():
     if conn is None:
         return redirect_to_connect()
     return redirect_to_index()
-    
 """

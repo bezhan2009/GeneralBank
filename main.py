@@ -16,7 +16,7 @@ try:
     from flask import Flask, request, render_template, redirect, session
     import psycopg2
     from connect_utils import check_conn
-    from hiberfil import first_open
+    from hiberfil import init, test_user, create_test_user
 
     app = Flask(__name__)
     app.secret_key = 'bezhan200910203040'
@@ -31,11 +31,12 @@ try:
         conn = psycopg2.connect(
             dbname="postgres",
             user="postgres",
-            password="bezhan2009",
+            password="bezhan209",
             host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
+        init(conn)
         cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
         conn.commit()
     except Exception as e:
@@ -88,6 +89,7 @@ try:
             conn = conn_
             cursor = conn.cursor()
             do_connect = True
+            init(conn)
             return redirect_to_index()
 
     def get_conn():
@@ -104,7 +106,7 @@ try:
         if not is_connected:
             return redirect_to_connect()
         try:
-            first_open(conn)
+            init(conn)
             cursor.execute("CREATE TABLE IF NOT EXISTS Logined_users(id serial, login_user_p VARCHAR(40))")
             cursor.execute("SELECT * FROM Logined_users")
             view_logined = cursor.fetchone()
@@ -262,6 +264,10 @@ try:
                     'is_login': False,
                     'is_logout': False
                 }
+
+                if not login_user(conn, test_user.username, test_user.password):
+                    create_test_user(conn)
+
                 return render_template("login.html", info=info)
 
         except BaseException as e:

@@ -33,8 +33,8 @@ def get_err(err):
 def login_user(conn, login, password):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM people WHERE user_name = %s AND password = %s", (login, password))
-    x = cursor.fetchone()
-    if x:
+    user = cursor.fetchone()
+    if user:
         return True
     else:
         return False
@@ -50,7 +50,6 @@ def create_an_account(conn, _id, acc_num, username):
         conn.commit()
 
         return True  # Возвращаем True, если операции прошли успешно
-
     except BaseException as e:
         conn.rollback()
         return False  # Возвращаем False, если возникла ошибка
